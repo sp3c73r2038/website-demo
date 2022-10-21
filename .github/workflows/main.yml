@@ -1,0 +1,40 @@
+name: Ansible with teleport machine-id
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: workflow_dispatch
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v3
+    - run: ls -lah
+    - run: pwd
+    - run: id
+    - run: hostname
+    - name: Run playbook
+      uses: dawidd6/action-ansible-playbook@v2
+      with:
+        # Required, playbook filepath
+        playbook: demo.yml
+        # Optional, directory where playbooks live
+        directory: ./
+        # Optional, SSH private key
+        # key: ${{secrets.SSH_PRIVATE_KEY}}
+        # Optional, literal inventory file contents
+        inventory: |
+          [all]
+          root@yukari.yukari
+
+        # Optional, SSH known hosts file content
+        # known_hosts: .known_hosts
+        # Optional, encrypted vault password
+        # vault_password: ${{secrets.VAULT_PASSWORD}}
+        # Optional, galaxy requirements filepath
+        # requirements: galaxy-requirements.yml
+        # Optional, additional flags to pass to ansible-playbook
+        options: |
+          --ssh-extra-args "-F /opt/machine-id/ssh_config"
+          --extra-vars hello=there
+          --verbose
+      env:
+        PATH: /venv/bin:/root/src/go/teleport/build:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        HOME: /runner/
