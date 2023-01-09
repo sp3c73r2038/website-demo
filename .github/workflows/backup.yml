@@ -1,0 +1,29 @@
+name: Backup to s3
+run-name: ${{ github.actor }} trying backup repo to s3
+on: workflow_dispatch
+jobs:
+  backup:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v3
+    - run: |
+        ls -lah
+        ls -lah .git
+        ls -lah .git/refs
+        ls -lah .git/refs/heads
+      shell: bash
+    - uses: unfor19/install-aws-cli-action@master
+      with:
+        version: 2
+        verbose: true
+    - run: |
+        export FN="${{ github.repository }}-$(date +%Y-%m-%d_%H-%M-%S).bundle"
+        export FILENAME="${FN/\//-}"
+        echo ${FILENAME}
+        git bundle create ${FILENAME} --all
+        aws s3 cp ${FILENAME} s3://wiredcraft-global-infrastructure-backup/github/repos/${FILENAME}
+      shell: bash
+      env:
+        REGION: ap-southeast-1
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
